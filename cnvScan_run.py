@@ -13,45 +13,33 @@ from scipy.stats import mannwhitneyu
 import filt_cnvs
 import annotate
 
+
+resource_dir = "/home/saneth/Documents/cnvFilt_proj/resources"
 cnv_res_file = sys.argv[1]
 
-#a_cnv = pybedtools.BedTool("../res-cnv/hChr")
 
-#cnv_res_file = "../res-cnv/hChr"
-###cnv_res_file = "/home/saneth/Documents/cnvFilt_proj/testSamples/A2013_exCopyDepth.tab"
-#vcf_file = "../indexed/all.filter.vcf.gz"
-###vcf_file = pysam.TabixFile("/home/saneth/Documents/cnvFilt_proj/cnvScAn/PIDD/VCF_PIDD_txts_extracted.reformatted/P13-020_extracted.reformatted.tab.gz")
-#vcf_file = pysam.TabixFile(sys.argv[2])
-#vcf_file = "/home/saneth/Documents/cnvFilt_proj/testSamples/Berge-excap-A2013-Av5_all.filter.hgmd.vcf.gz"
-#db_file = pysam.TabixFile("/home/saneth/Documents/cnvFilt_proj/cnvScAn/SickSinus/SickSinusCNVs/exCopyDepth.SickSinus.tab.sorted.bed.gz")
 db_file = pysam.TabixFile(sys.argv[3])
-db_id = "ExCD"
 
 cnv_anno = {}
 cnv_anno, cnvs_ordered = filt_cnvs.read_cnvRes(cnv_res_file, cnv_anno)
-#cnv_anno = filt_cnvs.het_hom_count_2(cnv_anno, vcf_file)
-#cnv_anno = filt_cnvs.het_home_count(cnv_anno, vcf_file)
-cnv_anno = filt_cnvs.db_search(db_file, db_id, cnv_anno)
+cnv_anno = filt_cnvs.db_search(db_file, cnv_anno) # cnv_anno = filt_cnvs.db_search(db_file, db_id, cnv_anno) #
 
-#a_cnv =  pybedtools.BedTool("../res-cnv/hChr")
-#a_cnv = pybedtools.BedTool("/home/saneth/Documents/cnvFilt_proj/cnvScAn/Sample_Nimblegen-SeqCap-pilot-13000305600/P13_00030_ExCopyDepth.dat_formatted.dat")
-#b_gencode = pybedtools.BedTool("../res-cnv/1_gen_head.gtf")
-b_gencode = pybedtools.BedTool("/home/saneth/Documents/cnvFilt_proj/resources/gencode19/havana_or_ensembl_gencode.v19.annotation.gtf")
-c_conradCNV = pybedtools.BedTool("/home/saneth/Documents/cnvFilt_proj/resources/conrad.et.al.2010_Validated_CNVEs_v5_4Release.tab")
-d_dgvCNV = pybedtools.BedTool("/home/saneth/Documents/cnvFilt_proj/resources/dgv_GRCh37_hg19_variants_2014-10-16.tab")
-d_dgvFiltsCNV_l2 = pysam.TabixFile("/home/saneth/Documents/cnvFilt_proj/resources/dgv-filtered/cnvMap_stringencyLevel2.bed.gz")
-d_dgvFiltsCNV_l12 = pysam.TabixFile("/home/saneth/Documents/cnvFilt_proj/resources/dgv-filtered/cnvMap_stringencyLevel12.bed.gz")
-e_phastCon = pysam.TabixFile("/home/saneth/Documents/cnvFilt_proj/resources/PhastCon/phastConsElements100wayFormatted.bed.gz")
-f_haploIdx = pysam.TabixFile("/home/saneth/Documents/cnvFilt_proj/resources/haploinsufficiencyindex/haploinsufficiencyindex_withimputation.bed.gz")
-g_del1000g_delFile = pysam.TabixFile("/home/saneth/Documents/cnvFilt_proj/resources/1000GSVs/1000GCNV/union.2010_06.deletions.sites.vcf.gz")
-h_dup1000g_delFile = pysam.TabixFile("/home/saneth/Documents/cnvFilt_proj/resources/1000GSVs/1000GCNV/union.2010_09.TandemDuplications.genotypes.vcf.gz")
-i_clinVar_reader = vcf.Reader(open('/home/saneth/Documents/cnvFilt_proj/resources/clinvar_20150106.vcf.gz', 'r'))
-j_omim_file = "/home/saneth/Documents/cnvFilt_proj/resources/OMIM/morbidmap_formatted_onlyHGNC.txt"
-h_devDis_file = "/home/saneth/Documents/cnvFilt_proj/resources/ddg2p_20141118/cnvScan_DDG2P_freeze_with_gencode19_genomic_coordinates_20141118.txt"
-i_genIntol_file = "/home/saneth/Documents/cnvFilt_proj/resources/GeneticIntollarenceScore/GeneticIntollarenceScore_RVIS_OERatioPercentile.txt"
 
-#a_cnv = annotate.create_bedTools("/home/saneth/Documents/cnvFilt_proj/testSamples/A2013_exCopyDepth.tab")
 a_cnv = annotate.create_bedTools(sys.argv[1])
+b_gencode = pybedtools.BedTool(resource_dir+"/gencode19/havana_or_ensembl_gencode.v19.annotation.gtf")
+c_conradCNV = pybedtools.BedTool(resource_dir+"/conrad.et.al.2010_Validated_CNVEs_v5_4Release.tab")
+d_dgvCNV = pybedtools.BedTool(resource_dir+"/dgv_GRCh37_hg19_variants_2014-10-16.tab")
+d_dgvFiltsCNV_l2 = pysam.TabixFile(resource_dir+"/dgv-filtered/cnvMap_stringencyLevel2.bed.gz")
+d_dgvFiltsCNV_l12 = pysam.TabixFile(resource_dir+"/dgv-filtered/cnvMap_stringencyLevel12.bed.gz")
+e_phastCon = pysam.TabixFile(resource_dir+"/PhastCon/phastConsElements100wayFormatted.bed.gz")
+f_haploIdx = pysam.TabixFile(resource_dir+"/haploinsufficiencyindex/haploinsufficiencyindex_withimputation.bed.gz")
+g_del1000g_delFile = pysam.TabixFile(resource_dir+"/1000GSVs/1000GCNV/union.2010_06.deletions.sites.vcf.gz")
+h_dup1000g_delFile = pysam.TabixFile(resource_dir+"/1000GSVs/1000GCNV/union.2010_09.TandemDuplications.genotypes.vcf.gz")
+i_clinVar_reader = vcf.Reader(open('/home/saneth/Documents/cnvFilt_proj/resources/clinvar_20150106.vcf.gz', 'r'))
+j_omim_file = resource_dir+"/OMIM/morbidmap_formatted_onlyHGNC.txt"
+h_devDis_file = resource_dir+"/ddg2p_20141118/cnvScan_DDG2P_freeze_with_gencode19_genomic_coordinates_20141118.txt"
+i_genIntol_file = resource_dir+"/GeneticIntollarenceScore/GeneticIntollarenceScore_RVIS_OERatioPercentile.txt"
+
 cnv_anno = annotate.gencode_annotate(a_cnv, b_gencode, cnv_anno)
 cnv_anno = annotate.sanger_annotate(a_cnv, c_conradCNV, cnv_anno)
 cnv_anno = annotate.dgv_annotate(a_cnv, d_dgvCNV, cnv_anno)
@@ -81,19 +69,14 @@ header_line.extend(["clinVar_disease", "hgvs_varName"])
 
 out_file = open(sys.argv[2], 'w')
 
-#print "\t".join(header_line)
 out_file.write("\t".join(header_line)+"\n")
 
-#for k,v in cnv_anno.items():
 for k in cnvs_ordered:
     line = k.split(":")
     line.extend([str(cnv_anno[k]['CNV_st']), cnv_anno[k]['score'], str(int(line[2])-int(line[1])) ])
-    #line.extend([ str(cnv_anno[k]["Het_count"]), str(cnv_anno[k]["Hom_count"]), str(cnv_anno[k]["Het/Hom_ratio"])])
-    #line.extend([ "NA", "NA", "NA"])
     line.extend([ str(cnv_anno[k]['inDB_count']), str(cnv_anno[k]['inDB_minmaxmedian']) ])
     lst_name = []
     exon_c = []
-    
 
     if cnv_anno[k].get('gene_name'):
         for k1 in cnv_anno[k]['gene_name']: lst_name.append( ":".join( [k1, cnv_anno[k]['gene_name'][k1]] ))

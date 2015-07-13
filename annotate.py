@@ -54,10 +54,8 @@ def gencode_annotate(a_cnv, b_gencode, cnv_anno):
             
             if feature[-6] >= feature[1] and feature[-5] <= feature[2]:
                 g_cov = "F"
-                #print "FFF", feature[0:3], feature[-6], feature[-5], filter(lambda x: 'gene_name' in x, feature[-1].split(";"))[0].split(" ")[2].replace("\"","")
             else:
                 g_cov = "P"
-                #print "PPP", feature[0:3], feature[-6], feature[-5], filter(lambda x: 'gene_name' in x, feature[-1].split(";"))[0].split(" ")[2].replace("\"","")
             if cnv_anno[feature_id].get('gene_name'):
                 pass
             else:
@@ -114,10 +112,8 @@ def gencode_annotate(a_cnv, b_gencode, cnv_anno):
                     if cnv_anno[k]['gene_name'][g] == "P":
                         if cnv_anno[k].get('UTR'):
                             cnv_anno[k]['UTR'] = "|".join([cnv_anno[k]['UTR'], utr_dict[k][g]])
-                            #print "UUUUUUUUUUUUUTTTTTTTTTTTTRRRRRRRRRRRR", k, cnv_anno[k]['UTR']
                         else:
                             cnv_anno[k]['UTR'] = utr_dict[k][g]
-                            #print "UUUUUUUUUUUUUTTTTTTTTTTTTRRRRRRRRRRRR", k, cnv_anno[k]['UTR']
         '''if cnv_anno[k].get('UTR'):
             pass
         else:
@@ -132,10 +128,8 @@ def gencode_annotate(a_cnv, b_gencode, cnv_anno):
                     if cnv_anno[k]['gene_name'][g] == "P":
                         if cnv_anno[k].get('transcript'):
                             cnv_anno[k]['transcript'] = "|".join([cnv_anno[k]['transcript'], transcript_dict[k][g]])
-                            #print "TTTTRRRRAAANNNSSSCCCRRRIIIPPPTTT", k, cnv_anno[k]['transcript']
                         else:
                             cnv_anno[k]['transcript'] = transcript_dict[k][g]
-                            #print "TTTTRRRRAAANNNSSSCCCRRRIIIPPPTTT", k, cnv_anno[k]['transcript']
                         if cnv_anno[k].get('exon'):
                             if cnv_anno[k].get('exon_count'):
                                 if cnv_anno[k]['exon'].get(trans_id):
@@ -146,8 +140,7 @@ def gencode_annotate(a_cnv, b_gencode, cnv_anno):
                                     #print trans_id
                                     if cnv_anno[k]['exon'].get(trans_id):
                                         cnv_anno[k]['exon_count'][trans_id] = cnv_anno[k]['exon'][trans_id]
-                                    #print "exon_countexon_countexon_count",k, cnv_anno[k]['exon_count']
-                            
+
         '''if cnv_anno[k].get('transcript'):
             pass
         else:
@@ -446,98 +439,3 @@ def devDisorder_annotate(h_devDis_file, cnv_anno):
             #print k,cnv_anno[k]['devDis_mutConseq'], cnv_anno[k]['devDis_disName'], cnv_anno[k]['devDis_pubmedID']
     
     return cnv_anno
-
-'''
-a_cnv = pybedtools.BedTool("../res-cnv/hChr")
-b_gencode = pybedtools.BedTool("../res-cnv/1_gen_head.gtf")
-c_conradCNV = pybedtools.BedTool("../resources/conrad.et.al.2010_Validated_CNVEs_v5_4Release.tab")
-d_dgvCNV = pybedtools.BedTool("../resources/dgv_GRCh37_hg19_variants_2014-10-16.tab")
-d_dgvFiltsCNV_l2 = pysam.TabixFile("../resources/dgv-filtered/cnvMap_stringencyLevel2.bed.gz")
-d_dgvFiltsCNV_l12 = pysam.TabixFile("../resources/dgv-filtered/cnvMap_stringencyLevel12.bed.gz")
-e_phastCon = pysam.TabixFile("../resources/PhastCon/phastConsElements100wayFormatted.bed.gz")
-f_haploIdx = pysam.TabixFile("../resources/haploinsufficiencyindex/haploinsufficiencyindex_withimputation.bed.gz")
-g_del1000g_delFile = pysam.TabixFile("../resources/1000GSVs/1000GCNV/union.2010_06.deletions.sites.vcf.gz")
-h_dup1000g_delFile = pysam.TabixFile("../resources/1000GSVs/1000GCNV/union.2010_09.TandemDuplications.genotypes.vcf.gz")
-i_clinVar_reader = vcf.Reader(open('/home/saneth/Documents/cnvFilt_proj/resources/clinvar_20150106.vcf.gz', 'r'))
-j_omim_file = "/home/saneth/Documents/cnvFilt_proj/resources/OMIM/morbidmap_formatted_onlyHGNC.txt"
-h_devDis_file = "/home/saneth/Documents/cnvFilt_proj/resources/ddg2p_20141118/cnvScan_DDG2P_freeze_with_gencode19_genomic_coordinates_20141118.txt"
-i_genIntol_file = "/home/saneth/Documents/cnvFilt_proj/resources/GeneticIntollarenceScore/GeneticIntollarenceScore_RVIS_OERatioPercentile.txt"
-
-
-
-
-cnv_anno = {}
-cnv_anno = gencode_annotate(a_cnv, b_gencode, cnv_anno)
-cnv_anno = sanger_annotate(a_cnv, c_conradCNV, cnv_anno)
-cnv_anno = dgv_annotate(a_cnv, d_dgvCNV, cnv_anno)
-cnv_anno = phastCon_annotate(e_phastCon, cnv_anno)
-cnv_anno = haploIdx_annotate(f_haploIdx, cnv_anno)
-cnv_anno = del1000g_annotate(g_del1000g_delFile, cnv_anno)
-cnv_anno = dup1000g_annotate(h_dup1000g_delFile, cnv_anno)
-cnv_anno = clinVar_annotate(i_clinVar_reader, cnv_anno)
-#cnv_anno = devDisorder_annotate()
-cnv_anno = omim_annotate(j_omim_file, cnv_anno)
-cnv_anno = dgvFilt_annotate(d_dgvFiltsCNV_l2, cnv_anno, "Stringency2")
-cnv_anno = dgvFilt_annotate(d_dgvFiltsCNV_l12, cnv_anno, "Stringency12")
-cnv_anno = geneticIntolarance_annotate(i_genIntol_file, cnv_anno)
-
-
-for k,v in cnv_anno.items():
-
-    line = k.split(":")
-    lst_name = []
-    exon_c = []
-
-    if cnv_anno[k].get('gene_name'):
-        for k1 in cnv_anno[k]['gene_name']: lst_name.append( ":".join( [k1, cnv_anno[k]['gene_name'][k1]] ))
-        line.append("|".join(lst_name))
-        line.append(";".join(cnv_anno[k]['gene_type'].keys()))
-        line.append(";".join(cnv_anno[k]['gene_id'].keys()))
-        if cnv_anno[k].get("exon"):
-            for k1 in cnv_anno[k]['exon']: exon_c.append( ":".join( [k1, str(cnv_anno[k]['exon'][k1])] ))
-            line.append("|".join(exon_c))
-        else:
-            line.append("NA")
-        if cnv_anno[k].get("UTR"):
-            line.append(cnv_anno[k]['UTR'])
-        else:
-            line.append("NA")
-    else:
-        cnv_anno[k]['gene_name'] = "NA"
-        line.append(cnv_anno[k]['gene_name'])
-        cnv_anno[k]['gene_type'] = "NA"
-        line.append(cnv_anno[k]['gene_type'])
-        cnv_anno[k]['gene_id'] = "NA"
-        line.append(cnv_anno[k]['gene_id'])
-        cnv_anno[k]['exon'] = "NA"
-        line.append(cnv_anno[k]['exon'])
-        cnv_anno[k]['UTR'] = "NA"
-        line.append(cnv_anno[k]['UTR'])
-    if cnv_anno[k].get('Sanger_HiRes_CNV'):
-        line.append(str(cnv_anno[k]['Sanger_HiRes_CNV']))
-    else:
-        cnv_anno[k]['Sanger_HiRes_CNV'] = "NA"
-        line.append(cnv_anno[k]['Sanger_HiRes_CNV'])
-    if cnv_anno[k].get('DGV_CNV'):
-        line.append(str(cnv_anno[k]['DGV_CNV']))
-        line.append(str(cnv_anno[k]['DGV_VarType']))
-        line.append(str(cnv_anno[k]['DGV_VarSubType']))
-        line.append(str(cnv_anno[k]['DGV_PUBMEDID']))
-    else:
-        cnv_anno[k]['DGV_CNV'] = "NA"
-        cnv_anno[k]['DGV_VarType'] = "NA"
-        cnv_anno[k]['DGV_VarSubType'] = "NA"
-        cnv_anno[k]['DGV_PUBMEDID'] = "NA"
-        line.append(cnv_anno[k]['DGV_CNV'])
-        line.append(cnv_anno[k]['DGV_VarType'])
-        line.append(cnv_anno[k]['DGV_VarSubType'])
-        line.append(cnv_anno[k]['DGV_PUBMEDID'])
-    line.append(str(cnv_anno[k]['phastCon_count']))
-    line.append(str(cnv_anno[k]['phastCon_min_max']))
-    line.append(str(cnv_anno[k]['haploIdx_count']))
-    line.append(str(cnv_anno[k]['haploIdx_score']))
-    line.append(str(cnv_anno[k]['1000G_Del_count']))
-    line.append(str(cnv_anno[k]['1000G_Dup_count']))
-    line.append(str(cnv_anno[k]['clindbn']))
-    line.append(str(cnv_anno[k]['clinhgvs']))
-    print "\t".join(line), len(line) '''
