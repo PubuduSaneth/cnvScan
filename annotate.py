@@ -14,7 +14,6 @@ def create_bedTools(cnv_file):
     cnv_bed = ""
 
     with open(cnv_file, 'r') as f:
-        #next(f)
         for line in f:
             line = line.replace("\n","")
             line = line.replace("\r","")
@@ -46,7 +45,6 @@ def gencode_annotate(a_cnv, b_gencode, cnv_anno):
             cnv_anno[feature_id] = {}
         feature[-7] = feature[-7].replace('"','')
         if feature[-7] == 'gene':
-            #print "111", feature
             g_cov = ""
             g_name = filter(lambda x: 'gene_name' in x, feature[-1].split(";"))[0].split(" ")[2].replace("\"","")
             g_type = filter(lambda x: 'gene_type' in x, feature[-1].split(";"))[0].split(" ")[2].replace("\"","")
@@ -92,7 +90,6 @@ def gencode_annotate(a_cnv, b_gencode, cnv_anno):
         
         elif feature[-7] == 'transcript':
             feature[-1] = feature[-1].replace('"','')
-            #feature[-7] = feature[-7].replace('"','')
             transcript_gene = filter(lambda x: 'gene_name' in x, feature[-1].split(";"))[0].split(" ")[2].replace("\"","")
             if transcript_dict.get(feature_id):
                 pass
@@ -114,12 +111,6 @@ def gencode_annotate(a_cnv, b_gencode, cnv_anno):
                             cnv_anno[k]['UTR'] = "|".join([cnv_anno[k]['UTR'], utr_dict[k][g]])
                         else:
                             cnv_anno[k]['UTR'] = utr_dict[k][g]
-        '''if cnv_anno[k].get('UTR'):
-            pass
-        else:
-            cnv_anno[k]['UTR'] = "NA"
-        #print "UUUUUUUUUUUUUTTTTTTTTTTTTRRRRRRRRRRRR", k, cnv_anno[k]['UTR']'''
-    
 
     for k in cnv_anno.keys():
         if transcript_dict.get(k):
@@ -140,25 +131,6 @@ def gencode_annotate(a_cnv, b_gencode, cnv_anno):
                                     #print trans_id
                                     if cnv_anno[k]['exon'].get(trans_id):
                                         cnv_anno[k]['exon_count'][trans_id] = cnv_anno[k]['exon'][trans_id]
-
-        '''if cnv_anno[k].get('transcript'):
-            pass
-        else:
-            cnv_anno[k]['transcript'] = "NA"
-        print "transcripttranscripttranscript",k, cnv_anno[k]['transcript']'''
-
-    '''for k in cnv_anno.keys():
-        if cnv_anno[k].get('exon'):
-            cnv_anno[k]['exon_count'] = 0
-            for trans_id in cnv_anno[k]['exon'].keys():
-                if cnv_anno[k]['exon'][trans_id] > cnv_anno[k]['exon_count']:
-                    cnv_anno[k]['exon_count'] = cnv_anno[k]['exon'][trans_id]
-        if cnv_anno[k].get('exon_count'):
-            pass
-        else:
-            cnv_anno[k]['exon_count'] = "NA"
-        print "exon_countexon_countexon_count",k, cnv_anno[k]['exon_count'] '''
-
     return cnv_anno
 
 def sanger_annotate(a_cnv, c_conradCNV, cnv_anno):
@@ -180,7 +152,6 @@ def dgv_annotate(a_cnv, d_dgvCNV, cnv_anno):
     a_and_e = a_cnv.intersect(d_dgvCNV, wa=True, wb=True)   
 
     for line, feature in enumerate(a_and_e):
-        #print line, feature[0:8]
         feature_id = ":".join(feature[0:3])[3:]
         if cnv_anno.get(feature_id):
             pass
@@ -221,7 +192,6 @@ def dgvFilt_annotate(d_dgvFiltsCNV_l, cnv_anno, level):
         lbl_count = level + "_count"
         lbl_pop = level + "_popFreq"
         
-        #chrom = 'chr' + line[0]
         try:
             for row in d_dgvFiltsCNV_l.fetch(line[0], int(line[1]), int(line[2])):
                 dgvFilt_count = dgvFilt_count  + 1
@@ -229,7 +199,6 @@ def dgvFilt_annotate(d_dgvFiltsCNV_l, cnv_anno, level):
             if len(dgv_popFreq) > 0:
                 cnv_anno[k][lbl_count] = dgvFilt_count
                 cnv_anno[k][lbl_pop] = "|".join(dgv_popFreq)
-                #print "11111111||| k: %s >> %s: %d | %s: %s" %(k, lbl_count, cnv_anno[k][lbl_count], lbl_pop, cnv_anno[k][lbl_pop])
             else:
                 cnv_anno[k][lbl_count] = "NA"
                 cnv_anno[k][lbl_pop] = "NA"
@@ -266,21 +235,13 @@ def geneticIntolarance_annotate(i_genIntol_file, cnv_anno):
             genticIntol_score[l[0]] = l[1]    
     
     for k in cnv_anno.keys():
-        #print "******", k
         if cnv_anno[k].get('gene_name'):
             for g in cnv_anno[k]['gene_name'].keys():
                 if genticIntol_score.get(g):
-                    #print "GGGG",g,k, genticIntol_score[g]
                     if cnv_anno[k].get('GenInTolScore'):
-                        #print "000", cnv_anno[k]['GenInTolScore'], genticIntol_score[g]
-                        #print cnv_anno[k]['GenInTolScore'], genticIntol_score[g]
                         cnv_anno[k]['GenInTolScore'] = "|".join([cnv_anno[k]['GenInTolScore'],genticIntol_score[g]])
-                        #print "222: %r %r " %(k, cnv_anno[k]['GenInTolScore'])
                     else:
                         cnv_anno[k]['GenInTolScore'] = genticIntol_score[g]
-                        #print "111: %r %r " %(k, cnv_anno[k]['GenInTolScore'])
-                        #print "111", cnv_anno[k]['GenInTolScore'], genticIntol_score[g]
-                        #print "111", cnv_anno[k]['GenInTolScore'], genticIntol_score[g]
                 else:
                     if cnv_anno[k].get('GenInTolScore'):
                         pass
@@ -288,7 +249,6 @@ def geneticIntolarance_annotate(i_genIntol_file, cnv_anno):
                         cnv_anno[k]['GenInTolScore'] = "NA"
         else:
             cnv_anno[k]['GenInTolScore'] = "NA"
-        #print "000000000000", cnv_anno[k]['GenInTolScore'] 
     return cnv_anno
     pass
 
@@ -319,7 +279,6 @@ def del1000g_annotate(g_del1000g_delFile, cnv_anno):
         for row in g_del1000g_delFile.fetch(line[0][3:], int(line[1]), int(line[2])):
             del_1000g_count = del_1000g_count  + 1
         if del_1000g_count > 0:
-            #print "Key: %r Count: %r Max: %r Min: %r" %(line, phastConEle_count, max(phastCon_lod), min(phastCon_lod))
             cnv_anno[k]['1000G_Del_count'] = del_1000g_count
         else:
             cnv_anno[k]['1000G_Del_count'] = "NA"
@@ -351,8 +310,6 @@ def clinVar_annotate(i_clinVar_reader, cnv_anno):
         for record in i_clinVar_reader.fetch(line[0][3:], int(line[1]), int(line[2])):
             if len(record.REF) > 1 or len(record.ALT[0]) > 1:
                 if re.search(r'4|5|6|7', record.INFO['CLNSIG'][0]):
-                    #print "00000000000000000"
-                    #print record,"\t",record.INFO['CLNHGVS'], record.INFO['CLNDSDB'], record.INFO['CLNSIG'], record.INFO['CLNDBN'], len(record.INFO['CLNDBN'])
                     for clin_disease in record.INFO['CLNDBN']:
                         for clin_disease_split in clin_disease.split("|"):
                             if clin_disease_split != 'not_provided':
@@ -402,7 +359,6 @@ def devDisorder_annotate(h_devDis_file, cnv_anno):
             line = line.replace('\n', '')
             l = line.split("\t")
             devDisorder[l[0]] = l[1].split("|")
-            #print l[0], devDisorder[l[0]]
 
     for k in cnv_anno.keys():
         if cnv_anno[k].get('gene_name'):
@@ -430,12 +386,8 @@ def devDisorder_annotate(h_devDis_file, cnv_anno):
             else:
                 cnv_anno[k]['devDis_pubmedID'] = "NA"
 
-            #print k,cnv_anno[k]['gene_name'],cnv_anno[k]['devDis_mutConseq'], cnv_anno[k]['devDis_disName'], cnv_anno[k]['devDis_pubmedID']
-            
         else:
             cnv_anno[k]['devDis_mutConseq'] =  "NA"
             cnv_anno[k]['devDis_disName'] =  "NA"
             cnv_anno[k]['devDis_pubmedID'] =  "NA"
-            #print k,cnv_anno[k]['devDis_mutConseq'], cnv_anno[k]['devDis_disName'], cnv_anno[k]['devDis_pubmedID']
-    
     return cnv_anno
