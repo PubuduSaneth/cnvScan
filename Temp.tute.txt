@@ -1,0 +1,124 @@
+ExomeCopy
+
+saneth@saneth-space ~/Documents/CNVScanPaper/PID-total/0-ExomeCopy $ 
+
+for f in $(find . -name "*ExCopy.dat_withScores.txt" -type f)
+do
+awk 'BEGIN{OFS="\t"}{print $0,substr(FILENAME,3,7)}' $f >> ../DB/ExCopy-65DB.txt
+done
+
+cd ../DB
+
+sort -k1,1 -k2n,2 -k3n,3  ExCopy-65DB.txt >  ExCopy-65DB.txt.sorted.bed
+bgzip  ExCopy-65DB.txt.sorted.bed 
+tabix -p bed  ExCopy-65DB.txt.sorted.bed.gz 
+
+saneth@saneth-space ~/Documents/CNVScanPaper/PID-total
+
+for f in $(find . -name "*ExCopy.dat_withScores.txt" -type f)
+do
+wc -l $f
+python cnvScan_v3.py $f $f'_CNVsCAN.tab' '/home/saneth/Documents/CNVScanPaper/PID-total/DB/ExCopy-65DB.txt.sorted.bed.gz'
+done
+
+saneth@saneth-space ~/Documents/CNVScanPaper/PID-total $ 
+python cnvVarFilt_v3.py 40 /home/saneth/Documents/CNVScanPaper/PID-total/01-ExomeCopy/01-ExomeCopy-cnvScan /home/saneth/Documents/cnvFilt_proj/cnvScAn/PIDD/PIDDgenes_NOV2014.txt.formatted-27032015.txt.gz
+_____________________________________________________________________________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________________________________________________________________________
+
+ExomeDepth
+
+saneth@saneth-space ~/Documents/CNVScanPaper/PID-total/02-ExomeDepth $ 
+
+for f in $(find . -name "*_exomedepth.ori.tab")
+do
+echo $f
+awk 'BEGIN{OFS="\t";cnv=""}{if($1 != "start.p") { if($3=="deletion"){cnv=1}else if($3=="duplication"){cnv=3}  split($8,a,":"); split(a[2],b,"-"); print substr(a[1],4),b[1],b[2],cnv,$9}}' $f > ${f:2:7}'_cnvScan.ready.bed'
+done
+
+for f in $(find . -name "*_cnvScan.ready.bed" -type f)
+do
+echo $f
+mv $f  ${f:2:7}'.ExomeDepth_cnvScan.ready.bed'
+done
+
+for f in $(find . -name "*.ExomeDepth_cnvScan.ready.bed" -type f)
+do
+awk 'BEGIN{OFS="\t"}{print $0,substr(FILENAME,3,7)}' $f >> ../DB/ExDepth-65DB.txt
+done
+
+sort -k1,1 -k2n,2 -k3n,3  ExCopy-65DB.txt >  ExDepth-65DB.txt.sorted.bed
+bgzip  ExDepth-65DB.txt.sorted.bed 
+tabix -p bed  ExDepth-65DB.txt.sorted.bed.gz 
+
+for f in $(find . -name "*ExomeDepth_cnvScan.ready.bed" -type f)
+do
+wc -l $f
+python cnvScan_v3.py $f $f'_cnvScan.tab' '/home/saneth/Documents/CNVScanPaper/PID-total/DB/ExDepth-65DB.txt.sorted.bed.gz'
+done
+
+python cnvVarFilt_v3.py 40 /home/saneth/Documents/CNVScanPaper/PID-total/02-ExomeDepth/01-ExomeDepth /home/saneth/Documents/cnvFilt_proj/cnvScAn/PIDD/PIDDgenes_NOV2014.txt.formatted-27032015.txt.gz
+awk '{if(NF>10 && $1 != "chr") print $0}'
+_____________________________________________________________________________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________________________________________________________________________
+
+ExCopyDepth
+
+saneth@saneth-space ~/Documents/CNVScanPaper/PID-total/03-ExCopyDepth/0-ExCopyDepth-originals $ 
+for f in $(find . -type f); do ff=${f:2:7}'_ExCopyDepth.dat'; mv $f ${ff/./_}; done 
+
+for f in $(find . -name "*_ExCopyDepth.dat")
+do
+echo $f
+awk 'BEGIN{OFS="\t";cnv=""}{if($1 != "start.p") { if($3=="deletion"){cnv=1}else if($3=="duplication"){cnv=3}  split($8,a,":"); split(a[2],b,"-"); print substr(a[1],4),b[1],b[2],cnv,$9}}' $f > ${f:2:7}'_ExCopyDepth_cnvScan.ready.bed'
+done
+
+for f in $(find . -name "*ExCopyDepth_cnvScan.ready.bed" -type f)
+do
+awk 'BEGIN{OFS="\t"}{print $0,substr(FILENAME,3,7)}' $f >> ../DB/ExCopyDepth-65DB.txt
+done
+
+sort -k1,1 -k2n,2 -k3n,3  DB/ExCopyDepth-65DB.txt >  DB/ExCopyDepth-65DB.txt.sorted.bed
+bgzip  DB/ExCopyDepth-65DB.txt.sorted.bed 
+tabix -p bed  DB/ExCopyDepth-65DB.txt.sorted.bed.gz 
+
+for f in $(find . -name "*ExCopyDepth_cnvScan.ready.bed" -type f)
+do
+wc -l $f
+python cnvScan_v3.py $f $f'_cnvScan.tab' '/home/saneth/Documents/CNVScanPaper/PID-total/DB/ExCopyDepth-65DB.txt.sorted.bed.gz'
+done
+
+saneth@saneth-space ~/Documents/CNVScanPaper/PID-total $ 
+python cnvVarFilt_v3.py 40 /home/saneth/Documents/CNVScanPaper/PID-total/03-ExCopyDepth/01-ExCopyDepth-cnvScan /home/saneth/Documents/cnvFilt_proj/cnvScAn/PIDD/PIDDgenes_NOV2014.txt.formatted-27032015.txt.gz
+python cnvVarFilt_v3.py 10 /home/saneth/Documents/CNVScanPaper/PID-total/03-ExCopyDepth/01-ExCopyDepth-cnvScan /home/saneth/Documents/cnvFilt_proj/cnvScAn/PIDD/PIDDgenes_NOV2014.txt.formatted-27032015.txt.gz
+
+_____________________________________________________________________________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________________________________________________________________________
+
+
+XHMM
+
+for f in P13-074 P13-076 P13-077 P13-078 P13-082 P13-083 P13-084 P13-088 P13-089 P13-092 P13-096 P13-102 P13-103 P13-104 P13-105 P13-107 P13-108 P13-109 P13-113 P13-114 P13-115 P13-154 P13-155 P13-156 P13-171 P13-172 P13-174 P13-182 P13-183 P13-190 P13-197 P13-199 P14-004 P14-005 P14-006 P14-019 P14-045 P14-046 P14-050 P14-058 P14-066 P14-076 P14-086 P14-095 P14-097 P14-106 P13-019 P13-020 P13-022
+do
+ff=${f/_/-}
+awk -v pat=$f 'BEGIN{OFS="\t"; cnv_st=2}{if($1 ~ pat){if($2=="DEL") {cnv_st = 1} else if($2=="DUP") {cnv_st = 3} split($3,a,":"); split(a[2],b,"-"); print a[1], b[1], b[2], cnv_st,$10}  }' XHMM-all.DATA.xcnv > '04-XHMM/'$f'_xhmm_cnvScan.ready.bed'
+done
+
+for f in $(find . -name "*_xhmm_cnvScan.ready.bed" -type f)
+do
+awk 'BEGIN{OFS="\t"}{print $0,substr(FILENAME,3,7)}' $f >> ../DB/XHMM-65DB.txt
+done
+
+sort -k1,1 -k2n,2 -k3n,3  DB/XHMM-65DB.txt >  DB/XHMM-65DB.txt.sorted.bed
+bgzip  DB/XHMM-65DB.txt.sorted.bed 
+tabix -p bed  DB/XHMM-65DB.txt.sorted.bed.gz 
+
+for f in $(find . -name "*_xhmm_cnvScan.ready.bed" -type f)
+do
+wc -l $f
+python cnvScan_v3.py $f $f'_cnvScan.tab' '/home/saneth/Documents/CNVScanPaper/PID-total/DB/XHMM-65DB.txt.sorted.bed.gz'
+done
+
+python cnvVarFilt_v3.py 40 /home/saneth/Documents/CNVScanPaper/PID-total/04-XHMM/01-xhmm-cnvScan /home/saneth/Documents/cnvFilt_proj/cnvScAn/PIDD/PIDDgenes_NOV2014.txt.formatted-27032015.txt.gz
+python cnvVarFilt_v3.py 10 /home/saneth/Documents/CNVScanPaper/PID-total/04-XHMM/01-xhmm-cnvScan /home/saneth/Documents/cnvFilt_proj/cnvScAn/PIDD/PIDDgenes_NOV2014.txt.formatted-27032015.txt.gz
+
