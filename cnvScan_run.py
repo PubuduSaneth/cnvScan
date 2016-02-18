@@ -14,7 +14,7 @@ import filt_cnvs
 import annotate
 
 
-resource_dir = "/home/saneth/Documents/cnvFilt_proj/resources"
+resource_dir = "resources"
 cnv_res_file = sys.argv[1]
 
 
@@ -26,19 +26,19 @@ cnv_anno = filt_cnvs.db_search(db_file, cnv_anno) # cnv_anno = filt_cnvs.db_sear
 
 
 a_cnv = annotate.create_bedTools(sys.argv[1])
-b_gencode = pybedtools.BedTool(resource_dir+"/gencode19/havana_or_ensembl_gencode.v19.annotation.gtf")
+b_gencode = pybedtools.BedTool(resource_dir+"/havana_or_ensembl_gencode.v19.annotation.gtf")
 c_conradCNV = pybedtools.BedTool(resource_dir+"/conrad.et.al.2010_Validated_CNVEs_v5_4Release.tab")
 d_dgvCNV = pybedtools.BedTool(resource_dir+"/dgv_GRCh37_hg19_variants_2014-10-16.tab")
-d_dgvFiltsCNV_l2 = pysam.TabixFile(resource_dir+"/dgv-filtered/cnvMap_stringencyLevel2.bed.gz")
-d_dgvFiltsCNV_l12 = pysam.TabixFile(resource_dir+"/dgv-filtered/cnvMap_stringencyLevel12.bed.gz")
-e_phastCon = pysam.TabixFile(resource_dir+"/PhastCon/phastConsElements100wayFormatted.bed.gz")
-f_haploIdx = pysam.TabixFile(resource_dir+"/haploinsufficiencyindex/haploinsufficiencyindex_withimputation.bed.gz")
-g_del1000g_delFile = pysam.TabixFile(resource_dir+"/1000GSVs/1000GCNV/union.2010_06.deletions.sites.vcf.gz")
-h_dup1000g_delFile = pysam.TabixFile(resource_dir+"/1000GSVs/1000GCNV/union.2010_09.TandemDuplications.genotypes.vcf.gz")
-i_clinVar_reader = vcf.Reader(open('/home/saneth/Documents/cnvFilt_proj/resources/clinvar_20150106.vcf.gz', 'r'))
-j_omim_file = resource_dir+"/OMIM/morbidmap_formatted_onlyHGNC.txt"
-h_devDis_file = resource_dir+"/ddg2p_20141118/cnvScan_DDG2P_freeze_with_gencode19_genomic_coordinates_20141118.txt"
-i_genIntol_file = resource_dir+"/GeneticIntollarenceScore/GeneticIntollarenceScore_RVIS_OERatioPercentile.txt"
+d_dgvFiltsCNV_l2 = pysam.TabixFile(resource_dir+"/cnvMap_stringencyLevel2.bed.gz")
+d_dgvFiltsCNV_l12 = pysam.TabixFile(resource_dir+"/cnvMap_stringencyLevel12.bed.gz")
+e_phastCon = pysam.TabixFile(resource_dir+"/phastConsElements100wayFormatted.bed.gz")
+f_haploIdx = pysam.TabixFile(resource_dir+"/haploinsufficiencyindex_withimputation.bed.gz")
+g_del1000g_delFile = pysam.TabixFile(resource_dir+"/union.2010_06.deletions.sites.vcf.gz")
+h_dup1000g_delFile = pysam.TabixFile(resource_dir+"/union.2010_09.TandemDuplications.genotypes.vcf.gz")
+i_clinVar_reader = vcf.Reader(open(resource_dir+'/clinvar_20150106.vcf.gz', 'r'))
+j_omim_file = resource_dir+"/morbidmap_formatted_onlyHGNC.txt"
+h_devDis_file = resource_dir+"/cnvScan_DDG2P_freeze_with_gencode19_genomic_coordinates_20141118.txt"
+i_genIntol_file = resource_dir+"/GeneticIntollarenceScore_RVIS_OERatioPercentile.txt"
 
 cnv_anno = annotate.gencode_annotate(a_cnv, b_gencode, cnv_anno)
 cnv_anno = annotate.sanger_annotate(a_cnv, c_conradCNV, cnv_anno)
@@ -54,8 +54,8 @@ cnv_anno = annotate.clinVar_annotate(i_clinVar_reader, cnv_anno)
 cnv_anno = annotate.omim_annotate(j_omim_file, cnv_anno)
 cnv_anno = annotate.devDisorder_annotate(h_devDis_file, cnv_anno)
 
-header_line= ["chr", "start", "end", "cnv_state", "score","len"]
-header_line.extend(["inDB_count", "inDB_MinMaxMedian"])
+header_line= ["chr", "start", "end", "cnv_state", "default_score","len"]
+header_line.extend(["inDB_count", "inDBScore_MinMaxMedian"])
 header_line.extend(["gene_name", "gene_type", "gene_id", "exon_count", "UTR", "transcript"])
 header_line.extend(["phastConElement_count", "phastConElement_minMax"])
 header_line.extend(["haplo_insufIdx_count", "haplo_insufIdx_score"])
@@ -147,10 +147,10 @@ for k in cnvs_ordered:
         cnv_anno[k]['DGV_Stringency12_count'] = "NA"
         cnv_anno[k]['DGV_Stringency12_popFreq'] = "NA"
         line.append(str(cnv_anno[k]['DGV_Stringency12_count']))
-        line.append(str(cnv_anno[k]['DGV_Stringency12_popFreq']))    
+        line.append(str(cnv_anno[k]['DGV_Stringency12_popFreq']))
     line.append(str(cnv_anno[k]['1000G_Del_count']))
     line.append(str(cnv_anno[k]['1000G_Dup_count']))
-    line.append(cnv_anno[k]['OMIM'])    
+    line.append(cnv_anno[k]['OMIM'])
     line.append(cnv_anno[k]['devDis_mutConseq'])
     line.append(cnv_anno[k]['devDis_disName'])
     line.append(cnv_anno[k]['devDis_pubmedID'])

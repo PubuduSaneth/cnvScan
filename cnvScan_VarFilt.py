@@ -71,17 +71,17 @@ out_file = open(out_fName, 'w')
 
 
 out_file.write ("""Filtration protocol
-            score > %d and
-            inDB_MinMaxMedian.split("|")[2] > %d and
-            DGV_Stringency2_count == "NA" OR 26 DGV_Stringency12_count == "NA" and
-            1000g_del == "NA"
-            1000g_ins == "NA"
+            Default score > %d and
+            CNVQ: inDB_MinMaxMedian.split("|")[2] > %d and
+            DGV CNVs: DGV_Stringency2_count == "NA" OR 26 DGV_Stringency12_count == "NA" and
+            1000 genome deletion: 1000g_del == "NA"
+            1000 genome insertion: 1000g_ins == "NA"
 """ %(cnvQual, cnvQual))
 
 if len(sys.argv) > 3:
-	out_file.write("\t".join(['chr', 'start', 'end', 'cnv_state', 'score', 'len', 'inDB_count', 'inDB_MinMaxMedian', 'gene_name', 'gene_type', 'gene_id', 'exon_count', 'UTR', 'transcript', 'phastConElement_count', 'phastConElement_minMax', 'haplo_insufIdx_count', 'haplo_insufIdx_score', 'Gene_intolarance_score', 'sanger_cnv', 'dgv_cnv', 'dgv_varType', 'dgv_varSubType', 'dgv_pubmedId', 'DGV_Stringency2_count', 'DGV_Stringency2_PopFreq', 'DGV_Stringency12_count', 'DGV_Stringency12_popFreq', '1000g_del', '1000g_ins', 'omim_morbidMap', 'ddd_mutConsequence', 'ddd_diseaseName', 'ddd_pubmedId', 'clinVar_disease', 'hgvs_varName', 'PIDD_GENE', 'Inheritnce', 'Phenotype']) + "\n")
+	out_file.write("\t".join(['chr', 'start', 'end', 'cnv_state', 'default_score', 'len', 'inDB_count', 'inDBScore_MinMaxMedian', 'gene_name', 'gene_type', 'gene_id', 'exon_count', 'UTR', 'transcript', 'phastConElement_count', 'phastConElement_minMax', 'haplo_insufIdx_count', 'haplo_insufIdx_score', 'Gene_intolarance_score', 'sanger_cnv', 'dgv_cnv', 'dgv_varType', 'dgv_varSubType', 'dgv_pubmedId', 'DGV_Stringency2_count', 'DGV_Stringency2_PopFreq', 'DGV_Stringency12_count', 'DGV_Stringency12_popFreq', '1000g_del', '1000g_ins', 'omim_morbidMap', 'ddd_mutConsequence', 'ddd_diseaseName', 'ddd_pubmedId', 'clinVar_disease', 'hgvs_varName', 'PIDD_GENE', 'Inheritnce', 'Phenotype']) + "\n")
 else:
-	out_file.write("\t".join(['chr', 'start', 'end', 'cnv_state', 'score', 'len', 'inDB_count', 'inDB_MinMaxMedian', 'gene_name', 'gene_type', 'gene_id', 'exon_count', 'UTR', 'transcript', 'phastConElement_count', 'phastConElement_minMax', 'haplo_insufIdx_count', 'haplo_insufIdx_score', 'Gene_intolarance_score', 'sanger_cnv', 'dgv_cnv', 'dgv_varType', 'dgv_varSubType', 'dgv_pubmedId', 'DGV_Stringency2_count', 'DGV_Stringency2_PopFreq', 'DGV_Stringency12_count', 'DGV_Stringency12_popFreq', '1000g_del', '1000g_ins', 'omim_morbidMap', 'ddd_mutConsequence', 'ddd_diseaseName', 'ddd_pubmedId', 'clinVar_disease', 'hgvs_varName']) + "\n")
+	out_file.write("\t".join(['chr', 'start', 'end', 'cnv_state', 'default_score', 'len', 'inDB_count', 'inDBScore_MinMaxMedian', 'gene_name', 'gene_type', 'gene_id', 'exon_count', 'UTR', 'transcript', 'phastConElement_count', 'phastConElement_minMax', 'haplo_insufIdx_count', 'haplo_insufIdx_score', 'Gene_intolarance_score', 'sanger_cnv', 'dgv_cnv', 'dgv_varType', 'dgv_varSubType', 'dgv_pubmedId', 'DGV_Stringency2_count', 'DGV_Stringency2_PopFreq', 'DGV_Stringency12_count', 'DGV_Stringency12_popFreq', '1000g_del', '1000g_ins', 'omim_morbidMap', 'ddd_mutConsequence', 'ddd_diseaseName', 'ddd_pubmedId', 'clinVar_disease', 'hgvs_varName']) + "\n")
 
 
 def filt_line(f_line):
@@ -95,7 +95,7 @@ def filt_line(f_line):
 
 
 for f in f_list:
-	out_file.write (f.split("/")[-1] + "\n") 
+	out_file.write (f.split("/")[-1] + "\n")
 	with open(f, "r") as f1:
 		next(f1)
 		for line in f1:
