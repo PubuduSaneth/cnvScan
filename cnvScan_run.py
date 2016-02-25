@@ -13,8 +13,9 @@ from scipy.stats import mannwhitneyu
 import filt_cnvs
 import annotate
 
+mypath = open('mypath', 'r')
+resource_dir = mypath.readline().split("=")[1].replace("\n","").replace("\r","")
 
-resource_dir = "resources"
 cnv_res_file = sys.argv[1]
 
 
