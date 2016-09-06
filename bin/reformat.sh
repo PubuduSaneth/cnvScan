@@ -18,5 +18,5 @@ do
             split(a[2], b, "-")
             print substr(a[1], 4), b[1], b[2], cnv, $9
         }
-    }' $f > ${f:2:7}'_cnvScan.ready.bed'
+    }' $f > ${f%.*}'.cnvScan.bed'
 done
