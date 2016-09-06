@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys
+import sys, os
 import pybedtools
 import pysam
 import vcf
@@ -25,7 +25,6 @@ class cnv_scan(object):
         self.dump()
 
     def annotate(self):
-        resource_dir = self.resources
 
         db_file = pysam.TabixFile(self.db)
 
@@ -34,19 +33,19 @@ class cnv_scan(object):
         cnv_anno = filt_cnvs.db_search(db_file, cnv_anno) # cnv_anno = filt_cnvs.db_search(db_file, db_id, cnv_anno) #
 
         a_cnv = annotate.create_bedTools(self.input)
-        b_gencode = pybedtools.BedTool(resource_dir+"/havana_or_ensembl_gencode.v19.annotation.gtf")
-        c_conradCNV = pybedtools.BedTool(resource_dir+"/conrad.et.al.2010_Validated_CNVEs_v5_4Release.tab")
-        d_dgvCNV = pybedtools.BedTool(resource_dir+"/dgv_GRCh37_hg19_variants_2014-10-16.tab")
-        d_dgvFiltsCNV_l2 = pysam.TabixFile(resource_dir+"/cnvMap_stringencyLevel2.bed.gz")
-        d_dgvFiltsCNV_l12 = pysam.TabixFile(resource_dir+"/cnvMap_stringencyLevel12.bed.gz")
-        e_phastCon = pysam.TabixFile(resource_dir+"/phastConsElements100wayFormatted.bed.gz")
-        f_haploIdx = pysam.TabixFile(resource_dir+"/haploinsufficiencyindex_withimputation.bed.gz")
-        g_del1000g_delFile = pysam.TabixFile(resource_dir+"/union.2010_06.deletions.sites.vcf.gz")
-        h_dup1000g_delFile = pysam.TabixFile(resource_dir+"/union.2010_09.TandemDuplications.genotypes.vcf.gz")
-        i_clinVar_reader = vcf.Reader(open(resource_dir+'/clinvar_20150106.vcf.gz', 'r'))
-        j_omim_file = resource_dir+"/morbidmap_formatted_onlyHGNC.txt"
-        h_devDis_file = resource_dir+"/cnvScan_DDG2P_freeze_with_gencode19_genomic_coordinates_20141118.txt"
-        i_genIntol_file = resource_dir+"/GeneticIntollarenceScore_RVIS_OERatioPercentile.txt"
+        b_gencode = pybedtools.BedTool(os.path.join(self.resources, "havana_or_ensembl_gencode.v19.annotation.gtf"))
+        c_conradCNV = pybedtools.BedTool(os.path.join(self.resources, "conrad.et.al.2010_Validated_CNVEs_v5_4Release.tab"))
+        d_dgvCNV = pybedtools.BedTool(os.path.join(self.resources, "dgv_GRCh37_hg19_variants_2014-10-16.tab"))
+        d_dgvFiltsCNV_l2 = pysam.TabixFile(os.path.join(self.resources, "cnvMap_stringencyLevel2.bed.gz"))
+        d_dgvFiltsCNV_l12 = pysam.TabixFile(os.path.join(self.resources, "cnvMap_stringencyLevel12.bed.gz"))
+        e_phastCon = pysam.TabixFile(os.path.join(self.resources, "phastConsElements100wayFormatted.bed.gz"))
+        f_haploIdx = pysam.TabixFile(os.path.join(self.resources, "haploinsufficiencyindex_withimputation.bed.gz"))
+        g_del1000g_delFile = pysam.TabixFile(os.path.join(self.resources, "union.2010_06.deletions.sites.vcf.gz"))
+        h_dup1000g_delFile = pysam.TabixFile(os.path.join(self.resources, "union.2010_09.TandemDuplications.genotypes.vcf.gz"))
+        i_clinVar_reader = vcf.Reader(open(os.path.join(self.resources, "clinvar_20150106.vcf.gz"), 'r'))
+        j_omim_file = os.path.join(self.resources, "morbidmap_formatted_onlyHGNC.txt")
+        h_devDis_file = os.path.join(self.resources, "cnvScan_DDG2P_freeze_with_gencode19_genomic_coordinates_20141118.txt")
+        i_genIntol_file = os.path.join(self.resources, "GeneticIntollarenceScore_RVIS_OERatioPercentile.txt")
 
         cnv_anno = annotate.gencode_annotate(a_cnv, b_gencode, cnv_anno)
         cnv_anno = annotate.sanger_annotate(a_cnv, c_conradCNV, cnv_anno)
