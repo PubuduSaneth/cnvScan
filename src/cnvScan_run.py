@@ -26,43 +26,54 @@ class cnv_scan(object):
 
     def annotate(self):
 
-        db_file = pysam.TabixFile(self.db)
-
-        cnv_anno = {}
-        cnv_anno, cnvs_ordered = filt_cnvs.read_cnvRes(self.input, cnv_anno)
-        cnv_anno = filt_cnvs.db_search(db_file, cnv_anno) # cnv_anno = filt_cnvs.db_search(db_file, db_id, cnv_anno) #
+        self.cnv_anno = {}
+        self.cnv_anno, self.cnvs_ordered = filt_cnvs.read_cnvRes(self.input, self.cnv_anno)
 
         a_cnv = annotate.create_bedTools(self.input)
-        b_gencode = pybedtools.BedTool(os.path.join(self.resources, "havana_or_ensembl_gencode.v19.annotation.gtf"))
-        c_conradCNV = pybedtools.BedTool(os.path.join(self.resources, "conrad.et.al.2010_Validated_CNVEs_v5_4Release.tab"))
-        d_dgvCNV = pybedtools.BedTool(os.path.join(self.resources, "dgv_GRCh37_hg19_variants_2014-10-16.tab"))
-        d_dgvFiltsCNV_l2 = pysam.TabixFile(os.path.join(self.resources, "cnvMap_stringencyLevel2.bed.gz"))
-        d_dgvFiltsCNV_l12 = pysam.TabixFile(os.path.join(self.resources, "cnvMap_stringencyLevel12.bed.gz"))
-        e_phastCon = pysam.TabixFile(os.path.join(self.resources, "phastConsElements100wayFormatted.bed.gz"))
-        f_haploIdx = pysam.TabixFile(os.path.join(self.resources, "haploinsufficiencyindex_withimputation.bed.gz"))
-        g_del1000g_delFile = pysam.TabixFile(os.path.join(self.resources, "union.2010_06.deletions.sites.vcf.gz"))
-        h_dup1000g_delFile = pysam.TabixFile(os.path.join(self.resources, "union.2010_09.TandemDuplications.genotypes.vcf.gz"))
-        i_clinVar_reader = vcf.Reader(open(os.path.join(self.resources, "clinvar_20150106.vcf.gz"), 'r'))
-        j_omim_file = os.path.join(self.resources, "morbidmap_formatted_onlyHGNC.txt")
-        h_devDis_file = os.path.join(self.resources, "cnvScan_DDG2P_freeze_with_gencode19_genomic_coordinates_20141118.txt")
-        i_genIntol_file = os.path.join(self.resources, "GeneticIntollarenceScore_RVIS_OERatioPercentile.txt")
 
-        cnv_anno = annotate.gencode_annotate(a_cnv, b_gencode, cnv_anno)
-        cnv_anno = annotate.sanger_annotate(a_cnv, c_conradCNV, cnv_anno)
-        cnv_anno = annotate.dgv_annotate(a_cnv, d_dgvCNV, cnv_anno)
-        cnv_anno = annotate.dgvFilt_annotate(d_dgvFiltsCNV_l2, cnv_anno, "DGV_Stringency2")
-        cnv_anno = annotate.dgvFilt_annotate(d_dgvFiltsCNV_l12, cnv_anno, "DGV_Stringency12")
-        cnv_anno = annotate.phastCon_annotate(e_phastCon, cnv_anno)
-        cnv_anno = annotate.haploIdx_annotate(f_haploIdx, cnv_anno)
-        cnv_anno = annotate.geneticIntolarance_annotate(i_genIntol_file, cnv_anno)
-        cnv_anno = annotate.del1000g_annotate(g_del1000g_delFile, cnv_anno)
-        cnv_anno = annotate.dup1000g_annotate(h_dup1000g_delFile, cnv_anno)
-        cnv_anno = annotate.clinVar_annotate(i_clinVar_reader, cnv_anno)
-        cnv_anno = annotate.omim_annotate(j_omim_file, cnv_anno)
-        cnv_anno = annotate.devDisorder_annotate(h_devDis_file, cnv_anno)
+        # define preprocessors
+        p_path = lambda x: os.path.join(self.resources, x)
+        p_bed = lambda x: pybedtools.BedTool(p_path(x))
+        p_tabix = lambda x: pysam.TabixFile(p_path(x))
+        p_vcf = lambda x: vcf.Reader(open(p_path(x)))
 
-        self.cnv_anno = cnv_anno
-        self.cnvs_ordered = cnvs_ordered
+        # define annotators
+        a_filt_cnvs = lambda x, d: filt_cnvs.db_search(x, d)
+        a_gencode = lambda x, d: annotate.gencode_annotate(a_cnv, x, d)
+        a_sanger = lambda x, d: annotate.sanger_annotate(a_cnv, x, d)
+        a_dgv = lambda x, d: annotate.dgv_annotate(a_cnv, x, d)
+        a_dgvFilt2 = lambda x, d: annotate.dgvFilt_annotate(x, d, "DGV_Stringency2")
+        a_dgvFilt12 = lambda x, d: annotate.dgvFilt_annotate(x, d, "DGV_Stringency12")
+        phastCon = lambda x, d: annotate.phastCon_annotate(x, d)
+        a_haplotIdx = lambda x, d: annotate.haploIdx_annotate(x, d)
+        a_del1000g = lambda x, d: annotate.del1000g_annotate(x, d)
+        a_dup1000g = lambda x, d: annotate.dup1000g_annotate(x, d)
+        a_clinVar = lambda x, d: annotate.clinVar_annotate(x, d)
+        a_omim = lambda x, d: annotate.omim_annotate(x, d)
+        devDisorder = lambda x, d: annotate.devDisorder_annotate(x, d)
+        genIntol = lambda x, d: annotate.geneticIntolarance_annotate(x, d)
+
+        # filename, preproc (p), annotate (a)
+        queue = [
+            (self.db, p_tabix, a_filt_cnvs),
+            ("havana_or_ensembl_gencode.v19.annotation.gtf", p_bed, a_gencode),
+            ("conrad.et.al.2010_Validated_CNVEs_v5_4Release.tab", p_bed, a_sanger),
+            ("dgv_GRCh37_hg19_variants_2014-10-16.tab", p_bed, a_dgv),
+            ("cnvMap_stringencyLevel2.bed.gz", p_tabix, a_dgvFilt2),
+            ("cnvMap_stringencyLevel12.bed.gz", p_tabix, a_dgvFilt12),
+            ("phastConsElements100wayFormatted.bed.gz", p_tabix, phastCon),
+            ("haploinsufficiencyindex_withimputation.bed.gz", p_tabix, a_haplotIdx),
+            ("union.2010_06.deletions.sites.vcf.gz", p_tabix, a_del1000g),
+            ("union.2010_09.TandemDuplications.genotypes.vcf.gz", p_tabix, a_dup1000g),
+            ("clinvar_20150106.vcf.gz", p_vcf, a_clinVar),
+            ("morbidmap_formatted_onlyHGNC.txt", p_path, a_omim),
+            ("cnvScan_DDG2P_freeze_with_gencode19_genomic_coordinates_20141118.txt", p_path, devDisorder),
+            ("GeneticIntollarenceScore_RVIS_OERatioPercentile.txt", p_path, genIntol)
+        ]
+
+        for (filename, preproc, anno) in queue:
+            tmp = preproc(filename)
+            self.cnv_anno = anno(tmp, self.cnv_anno)
 
 
     def dump(self):
