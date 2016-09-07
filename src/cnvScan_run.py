@@ -11,7 +11,7 @@ from scipy.stats import mannwhitneyu
 import filt_cnvs
 import annotate
 import argparse
-
+from collections import OrderedDict
 
 class cnv_scan(object):
 
@@ -94,93 +94,68 @@ class cnv_scan(object):
 
         out_file.write("\t".join(header_line)+"\n")
 
-        for k in self.cnvs_ordered:
-            line = k.split(":")
-            line.extend([str(self.cnv_anno[k]['CNV_st']), self.cnv_anno[k]['score'], str(int(line[2])-int(line[1])) ])
-            line.extend([ str(self.cnv_anno[k]['inDB_count']), str(self.cnv_anno[k]['inDB_minmaxmedian']) ])
-            lst_name = []
-            exon_c = []
+        # re-sorting the dictionary
+        cnv_dict = OrderedDict()
+        for pos in self.cnvs_ordered:
+            cnv_dict[pos] = self.cnv_anno[pos]
+            chrom, start, end = pos.split(":")
 
-            if self.cnv_anno[k].get('gene_name'):
-                for k1 in self.cnv_anno[k]['gene_name']: lst_name.append( ":".join( [k1, self.cnv_anno[k]['gene_name'][k1]] ))
-                line.append("|".join(lst_name))
-                line.append(";".join(self.cnv_anno[k]['gene_type'].keys()))
-                line.append(";".join(self.cnv_anno[k]['gene_id'].keys()))
-                if self.cnv_anno[k].get("exon_count"):
-                    for k1 in self.cnv_anno[k]['exon_count']: exon_c.append( ":".join( [k1, str(self.cnv_anno[k]['exon_count'][k1])] ))
-                    line.append("|".join(exon_c))
-                else:
-                    line.append("NA")
-                if self.cnv_anno[k].get('UTR'):
-                    line.append(self.cnv_anno[k]['UTR'])
-                else:
-                    line.append("NA")
-            else:
-                self.cnv_anno[k]['gene_name'] = "NA"
-                line.append(self.cnv_anno[k]['gene_name'])
-                self.cnv_anno[k]['gene_type'] = "NA"
-                line.append(self.cnv_anno[k]['gene_type'])
-                self.cnv_anno[k]['gene_id'] = "NA"
-                line.append(self.cnv_anno[k]['gene_id'])
-                self.cnv_anno[k]['exon_count'] = "NA"
-                line.append(self.cnv_anno[k]['exon_count'])
-                self.cnv_anno[k]['UTR'] = "NA"
-                line.append(self.cnv_anno[k]['UTR'])
-            if self.cnv_anno[k].get('transcript'):
-                line.append(self.cnv_anno[k]['transcript'])
-            else:
-                self.cnv_anno[k]['transcript'] = "NA"
-                line.append(self.cnv_anno[k]['transcript'])
-            line.append(str(self.cnv_anno[k]['phastCon_count']))
-            line.append(str(self.cnv_anno[k]['phastCon_min_max']))
-            line.append(str(self.cnv_anno[k]['haploIdx_count']))
-            line.append(str(self.cnv_anno[k]['haploIdx_score']))
-            line.append(str(self.cnv_anno[k]['GenInTolScore'])) #
-            if self.cnv_anno[k].get('Sanger_HiRes_CNV'):
-                line.append(str(self.cnv_anno[k]['Sanger_HiRes_CNV']))
-            else:
-                self.cnv_anno[k]['Sanger_HiRes_CNV'] = "NA"
-                line.append(self.cnv_anno[k]['Sanger_HiRes_CNV'])
-            if self.cnv_anno[k].get('DGV_CNV'):
-                line.append(str(self.cnv_anno[k]['DGV_CNV']))
-                line.append(str(self.cnv_anno[k]['DGV_VarType']))
-                line.append(str(self.cnv_anno[k]['DGV_VarSubType']))
-                line.append(str(self.cnv_anno[k]['DGV_PUBMEDID']))
-            else:
-                self.cnv_anno[k]['DGV_CNV'] = "NA"
-                self.cnv_anno[k]['DGV_VarType'] = "NA"
-                self.cnv_anno[k]['DGV_VarSubType'] = "NA"
-                self.cnv_anno[k]['DGV_PUBMEDID'] = "NA"
-                line.append(self.cnv_anno[k]['DGV_CNV'])
-                line.append(self.cnv_anno[k]['DGV_VarType'])
-                line.append(self.cnv_anno[k]['DGV_VarSubType'])
-                line.append(self.cnv_anno[k]['DGV_PUBMEDID'])
-            if self.cnv_anno[k].get('DGV_Stringency2_count'):
-                line.append(str(self.cnv_anno[k]['DGV_Stringency2_count']))   #
-                line.append(str(self.cnv_anno[k]['DGV_Stringency2_popFreq'])) #
-            else:
-                self.cnv_anno[k]['DGV_Stringency2_count'] = "NA"
-                self.cnv_anno[k]['DGV_Stringency2_popFreq'] = "NA"
-                line.append(str(self.cnv_anno[k]['DGV_Stringency2_count']))
-                line.append(str(self.cnv_anno[k]['DGV_Stringency2_popFreq']))
-            if self.cnv_anno[k].get('DGV_Stringency12_count'):
-                line.append(str(self.cnv_anno[k]['DGV_Stringency12_count']))   #
-                line.append(str(self.cnv_anno[k]['DGV_Stringency12_popFreq'])) #
-            else:
-                self.cnv_anno[k]['DGV_Stringency12_count'] = "NA"
-                self.cnv_anno[k]['DGV_Stringency12_popFreq'] = "NA"
-                line.append(str(self.cnv_anno[k]['DGV_Stringency12_count']))
-                line.append(str(self.cnv_anno[k]['DGV_Stringency12_popFreq']))
-            line.append(str(self.cnv_anno[k]['1000G_Del_count']))
-            line.append(str(self.cnv_anno[k]['1000G_Dup_count']))
-            line.append(self.cnv_anno[k]['OMIM'])
-            line.append(self.cnv_anno[k]['devDis_mutConseq'])
-            line.append(self.cnv_anno[k]['devDis_disName'])
-            line.append(self.cnv_anno[k]['devDis_pubmedID'])
-            line.append(str(self.cnv_anno[k]['clindbn']))
-            line.append(str(self.cnv_anno[k]['clinhgvs']))
-            out_file.write("\t".join(line) + "\n")
-            #print "\t".join(line), len(line)
+        for key, value in cnv_dict.iteritems():
+
+            line = []
+            chrom, start, end = key.split(":")
+            line += [chrom]
+            line += [start]
+            line += [end]
+            line += [value.get('CNV_st', 'NA')]
+            line += [value.get('score', 'NA')]
+            line += [ int(end) - int(start) ]
+            line += [value.get('inDB_count', 'NA')]
+            line += [value.get('inDB_minmaxmedian', 'NA')]
+
+            # for all: if key does exist, write "NA"
+            # 'gene_name': {'SDHDP6':'F', 'RHD':'P', 'C1orf63':'P'} --> "SDHDP6:F|RHD:P|C1orf63:P"
+            gene_names = value.get('gene_name')
+            line += ['|'.join([k + ':' + v for k, v in gene_names.iteritems() ]) if gene_names else 'NA']
+
+            # 'gene_type': {'protein_coding': 1, 'processed_transcript': 1} --> "protein_coding;processed_transcript"
+            gene_type = value.get('gene_type')
+            line += [";".join(gene_type.keys()) if gene_type else 'NA']
+
+            gene_id = value.get('gene_id')
+            line += [";".join(gene_id.keys()) if gene_id else 'NA']
+
+            # 'exon_count': {'ENST00000603639.1': 3, 'ENST00000604864.1': 3} --> "ENST00000603639.1:3|ENST00000604864.1:3"
+            exon_count = value.get('exon_count')
+            line += ['|'.join([k + ':' + str(v) for k, v in exon_count.iteritems()]) if exon_count else 'NA']
+
+            line += [value.get('UTR', 'NA')]
+            line += [value.get('transcript', 'NA')]
+            line += [value.get('phastCon_count', 'NA')]
+            line += [value.get('phastCon_min_max', 'NA')]
+            line += [value.get('haploIdx_count', 'NA')]
+            line += [value.get('haploIdx_score', 'NA')]
+            line += [value.get('GenInTolScore', 'NA')]
+            line += [value.get('Sanger_HiRes_CNV', 'NA')]
+            line += [value.get('DGV_CNV', 'NA')]
+            line += [value.get('DGV_VarType', 'NA')]
+            line += [value.get('DGV_VarSubType', 'NA')]
+            line += [value.get('DGV_PUBMEDID', 'NA')]
+            line += [value.get('DGV_Stringency2_count', 'NA')]
+            line += [value.get('DGV_Stringency2_popFreq', 'NA')]
+            line += [value.get('DGV_Stringency12_count', 'NA')]
+            line += [value.get('DGV_Stringency12_popFreq', 'NA')]
+            line += [value.get('1000G_Del_count', 'NA')]
+            line += [value.get('1000G_Dup_count', 'NA')]
+            line += [value.get('OMIM', 'NA')]
+            line += [value.get('devDis_mutConseq', 'NA')]
+            line += [value.get('devDis_disName', 'NA')]
+            line += [value.get('devDis_pubmedID', 'NA')]
+            line += [value.get('clindbn', 'NA')]
+            line += [value.get('clinhgvs', 'NA')]
+
+            #import ipdb; ipdb.set_trace()
+            out_file.write("\t".join( [str(elem) for elem in line] ) + "\n")
 
 
 # ============================================================
