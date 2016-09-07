@@ -90,72 +90,71 @@ class cnv_scan(object):
         header_line.extend(["ddd_mutConsequence", "ddd_diseaseName", "ddd_pubmedId"])
         header_line.extend(["clinVar_disease", "hgvs_varName"])
 
-        out_file = open(self.output, 'w')
+        with open(self.output, 'w') as out_file:
 
-        out_file.write("\t".join(header_line)+"\n")
+            out_file.write("\t".join(header_line)+"\n")
 
-        # re-sorting the dictionary
-        cnv_dict = OrderedDict()
-        for pos in self.cnvs_ordered:
-            cnv_dict[pos] = self.cnv_anno[pos]
-            chrom, start, end = pos.split(":")
+            # re-sorting the dictionary
+            cnv_dict = OrderedDict()
+            for pos in self.cnvs_ordered:
+                cnv_dict[pos] = self.cnv_anno[pos]
+                chrom, start, end = pos.split(":")
 
-        for key, value in cnv_dict.iteritems():
+            for key, value in cnv_dict.iteritems():
 
-            line = []
-            chrom, start, end = key.split(":")
-            line += [chrom]
-            line += [start]
-            line += [end]
-            line += [value.get('CNV_st', 'NA')]
-            line += [value.get('score', 'NA')]
-            line += [ int(end) - int(start) ]
-            line += [value.get('inDB_count', 'NA')]
-            line += [value.get('inDB_minmaxmedian', 'NA')]
+                line = []
+                chrom, start, end = key.split(":")
+                line += [chrom]
+                line += [start]
+                line += [end]
+                line += [value.get('CNV_st', 'NA')]
+                line += [value.get('score', 'NA')]
+                line += [ int(end) - int(start) ]
+                line += [value.get('inDB_count', 'NA')]
+                line += [value.get('inDB_minmaxmedian', 'NA')]
 
-            # for all: if key does exist, write "NA"
-            # 'gene_name': {'SDHDP6':'F', 'RHD':'P', 'C1orf63':'P'} --> "SDHDP6:F|RHD:P|C1orf63:P"
-            gene_names = value.get('gene_name')
-            line += ['|'.join([k + ':' + v for k, v in gene_names.iteritems() ]) if gene_names else 'NA']
+                # for all: if key does exist, write "NA"
+                # 'gene_name': {'SDHDP6':'F', 'RHD':'P', 'C1orf63':'P'} --> "SDHDP6:F|RHD:P|C1orf63:P"
+                gene_names = value.get('gene_name')
+                line += ['|'.join([k + ':' + v for k, v in gene_names.iteritems() ]) if gene_names else 'NA']
 
-            # 'gene_type': {'protein_coding': 1, 'processed_transcript': 1} --> "protein_coding;processed_transcript"
-            gene_type = value.get('gene_type')
-            line += [";".join(gene_type.keys()) if gene_type else 'NA']
+                # 'gene_type': {'protein_coding': 1, 'processed_transcript': 1} --> "protein_coding;processed_transcript"
+                gene_type = value.get('gene_type')
+                line += [";".join(gene_type.keys()) if gene_type else 'NA']
 
-            gene_id = value.get('gene_id')
-            line += [";".join(gene_id.keys()) if gene_id else 'NA']
+                gene_id = value.get('gene_id')
+                line += [";".join(gene_id.keys()) if gene_id else 'NA']
 
-            # 'exon_count': {'ENST00000603639.1': 3, 'ENST00000604864.1': 3} --> "ENST00000603639.1:3|ENST00000604864.1:3"
-            exon_count = value.get('exon_count')
-            line += ['|'.join([k + ':' + str(v) for k, v in exon_count.iteritems()]) if exon_count else 'NA']
+                # 'exon_count': {'ENST00000603639.1': 3, 'ENST00000604864.1': 3} --> "ENST00000603639.1:3|ENST00000604864.1:3"
+                exon_count = value.get('exon_count')
+                line += ['|'.join([k + ':' + str(v) for k, v in exon_count.iteritems()]) if exon_count else 'NA']
 
-            line += [value.get('UTR', 'NA')]
-            line += [value.get('transcript', 'NA')]
-            line += [value.get('phastCon_count', 'NA')]
-            line += [value.get('phastCon_min_max', 'NA')]
-            line += [value.get('haploIdx_count', 'NA')]
-            line += [value.get('haploIdx_score', 'NA')]
-            line += [value.get('GenInTolScore', 'NA')]
-            line += [value.get('Sanger_HiRes_CNV', 'NA')]
-            line += [value.get('DGV_CNV', 'NA')]
-            line += [value.get('DGV_VarType', 'NA')]
-            line += [value.get('DGV_VarSubType', 'NA')]
-            line += [value.get('DGV_PUBMEDID', 'NA')]
-            line += [value.get('DGV_Stringency2_count', 'NA')]
-            line += [value.get('DGV_Stringency2_popFreq', 'NA')]
-            line += [value.get('DGV_Stringency12_count', 'NA')]
-            line += [value.get('DGV_Stringency12_popFreq', 'NA')]
-            line += [value.get('1000G_Del_count', 'NA')]
-            line += [value.get('1000G_Dup_count', 'NA')]
-            line += [value.get('OMIM', 'NA')]
-            line += [value.get('devDis_mutConseq', 'NA')]
-            line += [value.get('devDis_disName', 'NA')]
-            line += [value.get('devDis_pubmedID', 'NA')]
-            line += [value.get('clindbn', 'NA')]
-            line += [value.get('clinhgvs', 'NA')]
+                line += [value.get('UTR', 'NA')]
+                line += [value.get('transcript', 'NA')]
+                line += [value.get('phastCon_count', 'NA')]
+                line += [value.get('phastCon_min_max', 'NA')]
+                line += [value.get('haploIdx_count', 'NA')]
+                line += [value.get('haploIdx_score', 'NA')]
+                line += [value.get('GenInTolScore', 'NA')]
+                line += [value.get('Sanger_HiRes_CNV', 'NA')]
+                line += [value.get('DGV_CNV', 'NA')]
+                line += [value.get('DGV_VarType', 'NA')]
+                line += [value.get('DGV_VarSubType', 'NA')]
+                line += [value.get('DGV_PUBMEDID', 'NA')]
+                line += [value.get('DGV_Stringency2_count', 'NA')]
+                line += [value.get('DGV_Stringency2_popFreq', 'NA')]
+                line += [value.get('DGV_Stringency12_count', 'NA')]
+                line += [value.get('DGV_Stringency12_popFreq', 'NA')]
+                line += [value.get('1000G_Del_count', 'NA')]
+                line += [value.get('1000G_Dup_count', 'NA')]
+                line += [value.get('OMIM', 'NA')]
+                line += [value.get('devDis_mutConseq', 'NA')]
+                line += [value.get('devDis_disName', 'NA')]
+                line += [value.get('devDis_pubmedID', 'NA')]
+                line += [value.get('clindbn', 'NA')]
+                line += [value.get('clinhgvs', 'NA')]
 
-            #import ipdb; ipdb.set_trace()
-            out_file.write("\t".join( [str(elem) for elem in line] ) + "\n")
+                out_file.write("\t".join( [str(elem) for elem in line] ) + "\n")
 
 
 # ============================================================
