@@ -6,5 +6,5 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 python ${DIR}/../src/cnvScan_VarFilt.py \
     -i $@ \
-    -o ${@%.*}.filtered.tab \
+    -o ${@%.*}.filtered.tsv \
     --score 10
