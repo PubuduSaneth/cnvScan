@@ -49,7 +49,8 @@ Field IDs
 '''
 
 cnvQual = int(sys.argv[1])
-f_list = glob.glob(sys.argv[2]+'/*')
+filename = sys.argv[2]
+
 if len(sys.argv) > 3:
 	gene_list = pysam.TabixFile(sys.argv[3])
 
@@ -65,7 +66,6 @@ if len(sys.argv) > 3:
 else:
 	print "Input \t0:%r \n\t1:%r \n\t2:%r" %(sys.argv[0], sys.argv[1], sys.argv[2])
 
-print "\n".join(f_list)
 out_fName = "cnvScan_Rare"+"_ScoreFilt-"+str(cnvQual)+".tab"
 out_file = open(out_fName, 'w')
 
@@ -86,6 +86,7 @@ else:
 
 def filt_line(f_line):
 	r_line = []
+
 	if float(f_line[4]) > cnvQual and \
 		(f_line[7] == "NA" or ( not f_line[7] == "NA" and float(f_line[7].split("|")[2]) > cnvQual)) and \
 		(f_line[24] == "NA" or f_line[26] == "NA") and \
@@ -93,34 +94,33 @@ def filt_line(f_line):
 		r_line = f_line
 	return r_line
 
+with open(filename, "r") as f1:
 
-for f in f_list:
-	out_file.write (f.split("/")[-1] + "\n")
-	with open(f, "r") as f1:
-		next(f1)
-		for line in f1:
-			g_name = []
-			inheritance = []
-			phenotype = []
-			line = line.replace("\n","")
-			line = line.replace("\r","")
-			line = line.split("\t")
-			if len(sys.argv) > 3:
-				try:
-					for row in gene_list.fetch(str(line[0]), int(line[1]), int(line[2])):
-						row = row.split("\t")
-						g_name.append(row[3])
-						inheritance.append(row[4])
-						phenotype.append(row[5])
-					if len(g_name) >0 :
-						line.extend([ "|".join(g_name), "|".join(inheritance), "|".join(phenotype)])
-						p_line = filt_line(line)
-						if len(p_line) > 0:
-							out_file.write("\t".join(p_line)+"\n")
-				except ValueError:
-					pass
-			else:
-				p_line = filt_line(line)
-				if len(p_line) > 0:
-					out_file.write("\t".join(p_line)+"\n")
+	next(f1)
+	for line in f1:
+
+		g_name = []
+		inheritance = []
+		phenotype = []
+		line = line.replace("\n","")
+		line = line.replace("\r","")
+		line = line.split("\t")
+		if len(sys.argv) > 3:
+			try:
+				for row in gene_list.fetch(str(line[0]), int(line[1]), int(line[2])):
+					row = row.split("\t")
+					g_name.append(row[3])
+					inheritance.append(row[4])
+					phenotype.append(row[5])
+				if len(g_name) >0 :
+					line.extend([ "|".join(g_name), "|".join(inheritance), "|".join(phenotype)])
+					p_line = filt_line(line)
+					if len(p_line) > 0:
+						out_file.write("\t".join(p_line)+"\n")
+			except ValueError:
+				pass
+		else:
+			p_line = filt_line(line)
+			if len(p_line) > 0:
+				out_file.write("\t".join(p_line)+"\n")
 out_file.close()
