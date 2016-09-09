@@ -144,7 +144,7 @@ class cnv_scan(object):
 
         with open(self.output, 'w') as out_file:
             header_line = [ header for (header, writer) in annotations ]
-            out_file.write("\t".join(header_line)+"\n")
+            out_file.write( "#" + "\t".join(header_line) + "\n" )
 
             for key, value in cnv_dict.iteritems():
                 line = [ str(writer(key, value)) for (header, writer) in annotations ]
